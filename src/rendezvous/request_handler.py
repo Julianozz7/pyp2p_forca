@@ -75,8 +75,7 @@ class RequestHandler:
             except Exception as e:
                 log.exception("REGISTER failed")
                 return json.dumps({"status": "ERROR", "message": str(e)})
-
-            
+   
         elif cmd == "DISCOVER":
             
             if not self.peer_db.is_ip_registered(client_ip):
@@ -88,7 +87,6 @@ class RequestHandler:
             if namespace is not None and not (1 <= len(namespace) <= 64):
                     log.warning("UNREGISTER invalid (namespace:%r)", namespace)
                     return json.dumps({"status": "ERROR", "message": "bad_namespace"})
-            
             
             peers = self.peer_db.get_peers(namespace)
             now = datetime.now(timezone.utc)
@@ -159,4 +157,3 @@ class RequestHandler:
 
         log.warning("Unknown command: %s", cmd)
         return json.dumps({"status": "ERROR", "message": "Unknown command"})    
-

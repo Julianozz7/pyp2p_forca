@@ -9,7 +9,6 @@ from request_handler import RequestHandler
 import json
 import logging
 
-
 log = logging.getLogger("rendezvous")
 
 MAX_LINE = 32 * 1024  # 32KB
@@ -198,9 +197,7 @@ class RendezvousServer:
                 pass
             
             connection.close()
-            log.info("Connection closed with %s", peer)
-
-            
+            log.info("Connection closed with %s", peer)       
             
     def start(
         self,
@@ -258,5 +255,3 @@ class RendezvousServer:
 
                 # Hand over to the pool (limits concurrency)
                 executor.submit(self.handle_client, connection, address)
-
-

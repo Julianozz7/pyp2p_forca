@@ -1,10 +1,7 @@
-
-
 from rendezvous import RendezvousServer
 import logging
 import argparse
 from pathlib import Path
-
 
 def setup_logging(mode: str, logfile: str | None):
     """
