@@ -30,7 +30,7 @@ pyp2p_forca/
 │       ├── game_player.py
 │       ├── hangman.py
 │       └── cli.py
-├── docs/                        # Especificações do professor
+├── docs/                      
 ├── tests/                       # Opcional. Testes hangman.
 └── .venv/                       # Ambiente Python. Opcional (nosso).
 ```
