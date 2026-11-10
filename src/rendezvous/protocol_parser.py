@@ -1,4 +1,3 @@
-
 import json
 import logging
 
@@ -8,7 +7,6 @@ class Request:
     def __init__(self, command, args):
         self.command = command
         self.args = args
-
 
 class ProtocolParser:
     def parse(self, raw_data):
@@ -28,4 +26,3 @@ class ProtocolParser:
         except Exception:
             log.exception("Unexpected parser error")
             return Request("ERROR", {"message": "Invalid JSON"})
-        

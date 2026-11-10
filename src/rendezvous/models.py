@@ -10,8 +10,6 @@ class PeerRecord:
     namespace: str
     ttl: int
     timestamp: datetime
-
-    
     
     def is_expired(self):
         return datetime.now(timezone.utc) > self.timestamp + timedelta(seconds=self.ttl)

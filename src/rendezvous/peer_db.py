@@ -107,6 +107,7 @@ class PeerDatabase:
             self._save_locked()
 
         return found
+    
     def add_peer(self, peer: PeerRecord):
         """Upsert by (ip, namespace, name) to avoid duplicates."""
         
@@ -153,8 +154,6 @@ class PeerDatabase:
             
             # return True if any peer was removed
             return removed > 0 
-
-        
 
     def get_peers(self, namespace=None):
         with self._lock:

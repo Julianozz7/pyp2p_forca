@@ -160,4 +160,3 @@
     "expect": { "equals": { "status": "OK", "peers": [] } }
   }
 ]
-
