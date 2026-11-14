@@ -2,7 +2,13 @@
 pyp2p_forca/
 ├── README.md
 ├── .gitignore
+├── LICENSE
+├── requirements.md
 ├── config.json                  # Nosso desenvolvimento
+├── docs/
+│   ├── PyP2p_Chat - Especificacao Trabalho.md
+│   ├── PyP2p - Rendesvouz.md
+│   └── PyP2p_Forca - Especificacao Trabalho.md
 ├── src/
 │   ├── rendezvous/              # Implementado pelo Professor
 │   │   ├── main.py
@@ -30,7 +36,9 @@ pyp2p_forca/
 │       ├── game_player.py
 │       ├── hangman.py
 │       └── cli.py
-├── docs/                      
-├── tests/                       # Opcional. Testes hangman.
-└── .venv/                       # Ambiente Python. Opcional (nosso).
+├── tests/                       # Testes unitários existentes no projeto. # Nosso desenvolvimento.
+│   ├── test_hangman.py
+│   ├── test_peer_table.py
+│   └── test_protocol.py
+└── .venv/                       # Ambiente Python local (ignorado pelo Git)
 ```
