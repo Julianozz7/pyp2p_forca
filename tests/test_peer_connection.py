@@ -1,6 +1,7 @@
 import json
 import socket
 import unittest
+import threading
 
 from src.p2p_forca.peer_connection import PeerConnection
 
@@ -88,7 +89,7 @@ class TestPeerReceive(unittest.TestCase):
 
         finally:
             connection.close()
-            sock2.close()import threading
+            sock2.close()
 
 
 class TestPeerReceive(unittest.TestCase):
