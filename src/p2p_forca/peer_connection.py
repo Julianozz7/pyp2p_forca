@@ -9,10 +9,7 @@ logger = logging.getLogger("PeerConnection")
 
 
 class PeerConnection:
-    """
-    Representa uma conexão TCP ativa com um único peer vizinho.
-    Cuida do envio e recebimento de linhas JSON terminadas por '\\n'.
-    """
+    "Representa uma conexão TCP ativa com um único peer vizinho. Cuida do envio e recebimento de linhas JSON terminadas por '\\n'."
     def __init__(self, sock: socket.socket, addr, local_peer_id: str, is_outbound: bool, on_message=route_message, on_disconnect=None):
         self.sock = sock
         self.addr = addr
@@ -27,12 +24,12 @@ class PeerConnection:
         self.lock = threading.Lock()
 
     def start_listening(self):
-        """Inicia uma thread dedicada para ler mensagens que chegam neste socket."""
+        "Inicia uma thread dedicada para ler mensagens que chegam neste socket."
         thread = threading.Thread(target=self._read_loop, daemon=True)
         thread.start()
 
     def send_json(self, payload: dict):
-        """Converte um dicionário para JSON, adiciona '\\n' e envia pelo socket."""
+        "Converte um dicionário para JSON, adiciona '\\n' e envia pelo socket."
         if not self.running:
             return
         try:
@@ -45,7 +42,7 @@ class PeerConnection:
             self.close()
 
     def send_hello(self):
-        """Envia o pacote inicial HELLO (usado por quem abre a conexão Outbound)."""
+        "Envia o pacote inicial HELLO (usado por quem abre a conexão Outbound)."
         hello_msg = {
             "type": "HELLO",
             "msg_id": str(uuid.uuid4()),
@@ -57,7 +54,7 @@ class PeerConnection:
         self.send_json(hello_msg)
 
     def send_hello_ok(self, req_msg_id: str):
-        """Responde ao HELLO recebido confirmando a sessão."""
+        "Responde ao HELLO recebido confirmando a sessão."
         hello_ok_msg = {
             "type": "HELLO_OK",
             "msg_id": req_msg_id,
@@ -69,7 +66,7 @@ class PeerConnection:
         self.send_json(hello_ok_msg)
 
     def send_bye(self, reason: str = "shutdown"):
-        """Envia aviso de encerramento limpo antes de fechar o socket."""
+        "Envia aviso de encerramento limpo antes de fechar o socket."
         if self.remote_peer_id:
             bye_msg = {
                 "type": "BYE",
@@ -83,7 +80,7 @@ class PeerConnection:
         self.close()
 
     def _read_loop(self):
-        """Lê bytes do socket TCP e separa as mensagens pela quebra de linha '\\n'."""
+        "Lê bytes do socket TCP e separa as mensagens pela quebra de linha '\\n'."
         buffer = ""
         try:
             while self.running:
@@ -110,7 +107,7 @@ class PeerConnection:
             self.close()
 
     def close(self):
-        """Fecha o socket com segurança e notifica o gerenciador."""
+        "Fecha o socket com segurança e notifica o gerenciador."
         if not self.running:
             return
         self.running = False
@@ -123,10 +120,7 @@ class PeerConnection:
 
 
 class PeerServer:
-    """
-    Servidor TCP local que fica ouvindo na 'listen_port' para aceitar
-    conexões de entrada (Inbound) de outros peers da malha.
-    """
+    "Servidor TCP local que fica ouvindo na 'listen_port' para aceitar conexões de entrada (Inbound) de outros peers da malha."
     def __init__(self, host: str, port: int, local_peer_id: str, on_new_connection):
         self.host = host
         self.port = port
@@ -136,7 +130,7 @@ class PeerServer:
         self.running = False
 
     def start(self):
-        """Inicia o servidor TCP em uma thread separada."""
+        "Inicia o servidor TCP em uma thread separada."
         self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_sock.bind((self.host, self.port))
@@ -173,10 +167,7 @@ class PeerServer:
 
 
 def connect_to_peer(ip: str, port: int, local_peer_id: str, on_disconnect=None) -> PeerConnection | None:
-    """
-    Abre uma conexão TCP de saída (Outbound) para um peer descoberto
-    e envia automaticamente a mensagem inicial HELLO.
-    """
+    "Abre uma conexão TCP de saída (Outbound) para um peer descoberto e envia automaticamente a mensagem inicial HELLO."
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(5.0)

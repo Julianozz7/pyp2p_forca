@@ -6,10 +6,7 @@ import threading
 logger = logging.getLogger("KeepAlive")
 
 class KeepAliveManager:
-    """
-    Gerencia o envio periódico de PING e a verificação de PONG/Timeouts
-    para todas as conexões ativas na PeerTable.
-    """
+    "Gerencia o envio periódico de PING e a verificação de PONG/Timeouts para todas as conexões ativas na PeerTable."
     def __init__(self, peer_table, ping_interval=30, miss_limit=3):
         self.peer_table = peer_table
         self.ping_interval = ping_interval
@@ -20,7 +17,7 @@ class KeepAliveManager:
         self.lock = threading.Lock()
 
     def start(self):
-        """Inicia a thread de monitoramento do Keep-Alive."""
+        "Inicia a thread de monitoramento do Keep-Alive."
         self.running = True
         thread = threading.Thread(target=self._run_loop, daemon=True)
         thread.start()
@@ -30,7 +27,7 @@ class KeepAliveManager:
         self.running = False
 
     def handle_ping_received(self, msg, connection):
-        """Chamado quando recebemos um PING de um peer. Deve responder com PONG."""
+        "Chamado quando recebemos um PING de um peer. Deve responder com PONG."
         timestamp = msg.get("timestamp")
         pong_msg = {
             "type": "PONG",
@@ -41,7 +38,7 @@ class KeepAliveManager:
         connection.send_json(pong_msg)
 
     def handle_pong_received(self, msg, connection):
-        """Chamado quando recebemos um PONG. Calcula o RTT e reseta os pings perdidos."""
+        "Chamado quando recebemos um PONG. Calcula o RTT e reseta os pings perdidos."
         msg_id = msg.get("msg_id")
         remote_id = connection.remote_peer_id
 
@@ -58,7 +55,7 @@ class KeepAliveManager:
                 logger.debug(f"[KeepAlive] RTT com {remote_id}: {rtt:.2f} ms")
 
     def _run_loop(self):
-        """Loop executado em background para disparar PINGs e checar timeouts."""
+        "Loop executado em background para disparar PINGs e checar timeouts."
         while self.running:
             time.sleep(self.ping_interval)
             if not self.running:

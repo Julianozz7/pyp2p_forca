@@ -4,7 +4,7 @@ import time
 logger = logging.getLogger("PeerTable")
 
 class PeerEntry:
-    """Representa um peer conhecido na rede e seu estado atual."""
+    "Representa um peer conhecido na rede e seu estado atual."
     def __init__(self, name: str, namespace: str, ip: str, port: int):
         self.name = name
         self.namespace = namespace
@@ -18,14 +18,14 @@ class PeerEntry:
         self.backoff = 2
 
 class PeerTable:
-    """Gerencia a tabela de todos os peers conhecidos e conexões ativas."""
+    "Gerencia a tabela de todos os peers conhecidos e conexões ativas."
     def __init__(self, local_peer_id: str):
         self.local_peer_id = local_peer_id
         self.peers = {}  # Mapeia peer_id -> PeerEntry
         self.active_connections = {}  # Mapeia socket/conexao -> PeerEntry
 
     def add_or_update_from_discover(self, rdv_peer_info: dict):
-        """Atualiza a tabela com a lista de peers recebida do Rendezvous (DISCOVER)."""
+        "Atualiza a tabela com a lista de peers recebida do Rendezvous (DISCOVER)."
         name = rdv_peer_info.get("name")
         namespace = rdv_peer_info.get("namespace")
         ip = rdv_peer_info.get("ip")
@@ -51,10 +51,7 @@ class PeerTable:
         return entry
 
     def register_connection(self, conn) -> bool:
-        """
-        Registra uma conexão estabelecida e aplica a regra de desempate
-        para conexões duplicadas (menor peer_id lexicográfico vence).
-        """
+        "Registra uma conexão estabelecida e aplica a regra de desempate para conexões duplicadas (menor peer_id lexicográfico vence)."
         remote_id = conn.remote_peer_id
         if not remote_id:
             return True
@@ -96,7 +93,7 @@ class PeerTable:
         return True
 
     def remove_connection(self, conn):
-        """Remove a associação de conexão quando um socket é fechado."""
+        "Remove a associação de conexão quando um socket é fechado."
         remote_id = conn.remote_peer_id
         if remote_id and remote_id in self.peers:
             entry = self.peers[remote_id]
@@ -106,5 +103,5 @@ class PeerTable:
                 logger.info(f"[PeerTable] Conexão perdida com {remote_id}. Marcado como STALE.")
 
     def get_connected_peers(self):
-        """Retorna uma lista de todas as conexões ativas."""
+        "Retorna uma lista de todas as conexões ativas."
         return [entry.connection for entry in self.peers.values() if entry.state == "CONNECTED" and entry.connection]
