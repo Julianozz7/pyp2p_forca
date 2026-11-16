@@ -1,3 +1,4 @@
+
 import json
 import socket
 import threading
@@ -22,6 +23,7 @@ class PeerConnection:
 
     def send_message(self, message):
         """Envia uma mensagem JSON terminada em quebra de linha."""
+
         if not isinstance(message, dict):
             raise TypeError("A mensagem precisa ser um dicionário.")
 
@@ -32,13 +34,17 @@ class PeerConnection:
             datetime.now(timezone.utc).isoformat()
         )
 
-        data = json.dumps(message, ensure_ascii=False).encode("utf-8") + b"\n"
+        data = json.dumps(
+            message,
+            ensure_ascii=False
+        ).encode("utf-8") + b"\n"
 
         with self.send_lock:
             self.sock.sendall(data)
 
     def start(self):
         """Inicia a leitura de mensagens em uma thread."""
+
         if self.running:
             return
 
@@ -48,10 +54,12 @@ class PeerConnection:
             target=self._receive_loop,
             daemon=True
         )
+
         thread.start()
 
     def _receive_loop(self):
         """Recebe e processa mensagens JSON."""
+
         try:
             while self.running:
                 data = self.sock.recv(4096)
@@ -90,6 +98,7 @@ class PeerConnection:
 
     def close(self):
         """Encerra a conexão."""
+
         self.running = False
 
         try:
@@ -103,4 +112,6 @@ class PeerConnection:
             pass
 
     def is_connected(self):
+        """Informa se a conexão está ativa."""
+
         return self.running
