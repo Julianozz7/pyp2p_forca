@@ -1,75 +1,94 @@
-from rendezvous import RendezvousServer
-import logging
 import argparse
-from pathlib import Path
+import logging
 
-def setup_logging(mode: str, logfile: str | None):
-    """
-    mode: 'console' | 'file' | 'both'
-    logfile: path for file logging when mode is 'file' or 'both'
-    """
-    # Clean existing handlers to avoid duplicates one reloads
-    root = logging.getLogger()
-    for h in list(root.handlers):
-        root.removeHandler(h)
+from p2p_forca.p2p_client import P2PClient
+from p2p_forca.cli import CLI
 
-    root.setLevel(logging.INFO)
 
-    fmt = logging.Formatter(
-        "%(asctime)s.%(msecs)03d %(levelname)s [%(threadName)s] %(name)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
+def configure_logging(config):
+    """Configura o sistema de logs."""
+
+    log_file = config.get("log_file")
+
+    logging.basicConfig(
+        filename=log_file,
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
     )
 
-    handlers = []
-    if mode in ("console", "both"):
-        ch = logging.StreamHandler()
-        ch.setFormatter(fmt)
-        handlers.append(ch)
 
-    if mode in ("file", "both"):
-        if not logfile:
-            logfile = "server.log"
-        # ensure parent directory exists (if provided)
-        Path(logfile).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
-        fh = logging.FileHandler(logfile, mode="a", encoding="utf-8")
-        fh.setFormatter(fmt)
-        handlers.append(fh)
-        
-    for h in handlers:
-        root.addHandler(h)
+def create_argument_parser():
+    """Define os argumentos aceitos pela linha de comando."""
+
+    parser = argparse.ArgumentParser(
+        description="Cliente P2P - Jogo da Forca"
+    )
+
+    parser.add_argument("--config", default="config.json")
+
+    # Identidade e rede
+    parser.add_argument("--name")
+    parser.add_argument("--namespace")
+    parser.add_argument("--listen-port", type=int)
+    parser.add_argument("--rdv-host")
+    parser.add_argument("--rdv-port", type=int)
+
+    # Rendezvous e descoberta
+    parser.add_argument("--register-ttl", type=int)
+    parser.add_argument("--discover-interval", type=int)
+
+    # KeepAlive
+    parser.add_argument("--ping-interval", type=int)
+    parser.add_argument("--ping-miss-limit", type=int)
+
+    # Reconexão
+    parser.add_argument("--max-reconnect-attempts", type=int)
+    parser.add_argument("--base-backoff", type=int)
+    parser.add_argument("--max-backoff", type=int)
+
+    # Jogo
+    parser.add_argument("--lives", type=int)
+    parser.add_argument("--max-players", type=int)
+    parser.add_argument("--turn-timeout", type=int)
+    parser.add_argument("--words-file")
+
+    # Logs
+    parser.add_argument("--log-file")
+
+    return parser
+
+def main():
+    parser = create_argument_parser()
+    args = parser.parse_args()
+
+    # Apenas os argumentos informados serão sobrescritos.
+    overrides = {
+        key: value
+        for key, value in vars(args).items()
+        if key != "config" and value is not None
+    }
+
+    try:
+        client = P2PClient(
+            config_path=args.config,
+            overrides=overrides
+        )
+
+        configure_logging(client.config)
+
+        if not client.start():
+            print("Não foi possível iniciar o cliente P2P.")
+            return
+
+        print(f"Cliente iniciado: {client.peer_id}")
+
+        interface = CLI(client)
+        interface.run()
+
+    except Exception as error:
+        logging.exception("Erro ao iniciar o jogo.")
+        print(f"Erro: {error}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Rendezvous server launcher with flexible logging.")
-    parser.add_argument(
-        "--log-mode",
-        choices=["console", "file", "both"],
-        default="console",
-        help="Where to write logs: console, file, or both (default: console).",
-    )
-    parser.add_argument(
-        "--log-file",
-        default="server.log",
-        help="Log file path when using modes 'file' or 'both' (default: server.log).",
-    )
-    
-    parser.add_argument(
-        "--host",
-        type=str,
-        default="0.0.0.0",
-        help="Host/IP for the rendezvous server (default: 0.0.0.0).",
-    )
-    
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=8080,
-        help="Port for the rendezvous server (default: 8080).",
-    )
-    
-    args = parser.parse_args()
-
-    setup_logging(args.log_mode, args.log_file)
-    
-    server = RendezvousServer(args.host, args.port)
-    server.start()
+    main()
