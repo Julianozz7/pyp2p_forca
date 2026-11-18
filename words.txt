@@ -1,0 +1,10 @@
+banana
+casa
+computador
+rede
+protocolo
+internet
+janela
+escola
+python
+socket
