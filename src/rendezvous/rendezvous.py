@@ -158,8 +158,9 @@ class RendezvousServer:
 
                     try:
                         connection.sendall((msg + "\n").encode("utf-8"))
-                    finally:
-                        return # close connection at finally block
+                    except (socket.timeout, BrokenPipeError, ConnectionResetError) as e:
+                        log.debug("Failed to send timeout error to %s: %s", peer, e)
+                    return
                     
             # if did come useful data, process it and close connection        
             if not line or not line.strip():
