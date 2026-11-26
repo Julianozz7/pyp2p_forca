@@ -37,7 +37,7 @@ class RendezvousServer:
     - Consider using external rate-limiting solutions (e.g., fail2ban, iptables)
       for more sophisticated protection
     """
-    def __init__(self, host='0.0.0.0', port=5000, max_attempts=50, window_seconds=60, block_time=60):
+    def __init__(self, host='192.168.50.89', port=8080, max_attempts=50, window_seconds=60, block_time=60):
         self.host = host
         self.port = port
         self.peer_db = PeerDatabase()
@@ -158,8 +158,9 @@ class RendezvousServer:
 
                     try:
                         connection.sendall((msg + "\n").encode("utf-8"))
-                    finally:
-                        return # close connection at finally block
+                    except (socket.timeout, BrokenPipeError, ConnectionResetError) as e:
+                        log.debug("Failed to send timeout error to %s: %s", peer, e)
+                    return
                     
             # if did come useful data, process it and close connection        
             if not line or not line.strip():
